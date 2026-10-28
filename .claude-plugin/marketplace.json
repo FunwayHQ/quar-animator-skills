@@ -1,0 +1,15 @@
+{
+  "name": "quar-animator-skills",
+  "owner": { "name": "Funway Interactive", "url": "https://github.com/FunwayHQ" },
+  "description": "Claude skills for Quar Animator, the web-native 2D animation editor",
+  "plugins": [
+    {
+      "name": "quar-design",
+      "source": "./plugins/quar-design",
+      "description": "Design and animate in Quar Animator through its MCP server: a working loop that looks at every step, a design rubric, a motion guide and step-by-step recipes",
+      "version": "1.0.0",
+      "category": "design",
+      "keywords": ["animation", "motion design", "lottie", "quar", "mcp"]
+    }
+  ]
+}

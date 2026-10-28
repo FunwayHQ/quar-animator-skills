@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "quar-animator": {
+      "type": "http",
+      "url": "https://api.animator.quar.pro/mcp"
+    }
+  }
+}
