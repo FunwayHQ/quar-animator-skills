@@ -1,6 +1,6 @@
 {
   "name": "quar-design",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Design and animate in Quar Animator through its MCP server: a working loop that looks at every step, a design rubric, a motion guide and step-by-step recipes",
   "author": { "name": "Funway Interactive", "url": "https://github.com/FunwayHQ" },
   "homepage": "https://animator.quar.pro",

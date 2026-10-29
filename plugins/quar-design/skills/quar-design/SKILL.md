@@ -16,7 +16,8 @@ another way to make the file.
 
 ## The loop
 
-1. **Read.** `list_projects` (or `create_project {name}` for a fresh start), then
+1. **Read.** `list_projects` (or `create_project {name}` for a fresh start — give the user its
+   `editorUrl`, which opens it in their editor), then
    `get_scene_context {project_id}`. Note the `seq` — pass it as `base_seq` to every edit, so an
    edit fails instead of landing on changes you haven't seen. Note `frameRate`, `duration`,
    `artboardTimelines`, and what's locked (the user's: leave it alone unless asked).
@@ -57,13 +58,16 @@ Arguments sit beside each other — never nested in an `options` object.
 create_project      {name}
 get_scene_context   {project_id, page?, node?, depth?}
 get_node            {project_id, node, page?}          (every stored property, its keyframes)
-get_timeline        {project_id, page?, node?}         (every keyframe, with its easing)
+get_timeline        {project_id, page?, node?, property?} (every keyframe, with its easing; one property's)
 get_animatable_properties {node_type}                  (what a type can animate: bones take x, y too)
+list_fonts          {}                                 (the families text can be drawn in, and their weights)
+measure_text        {text, font_family?, font_weight?, font_size?, letter_spacing?, line_height?, box_width?}
+                                                       (each glyph's x and advance, line widths, ascent, descent)
 apply_edit_batch    {project_id, ops: [...], base_seq?, message?, dry_run?, preview_frame?,
                      preview_page?, preview_node?, preview_size?}
-render_frame        {project_id, frame?, node?, page?, size?}
-render_preview      {project_id, frames? | count?, node?, page?, size?}
-capture_canvas      {project_id, frame?, page?}        (the user's open editor draws it)
+render_frame        {project_id, frame?, node?, page?, size?, transparent?}
+render_preview      {project_id, frames? | count?, node?, page?, size?, transparent?}
+capture_canvas      {project_id, frame?, page?}        (the user's open editor draws it; the saved version if it doesn't answer)
 export              {project_id, format, node?, frame?, start_frame?, end_frame?, fps?, width?, height?}
 get_export          {export_id, wait?, include_file?}
 list_versions       {project_id}
@@ -72,11 +76,12 @@ restore_version     {project_id, seq}
 
 An op is `{"op": <name>, …its arguments}`; each op takes its own optional `page` (there's no
 `page` on the batch itself). The ops are the edit tools' names: `add_node`, `update_node`,
-`set_style`, `delete_node`, `duplicate_node`, `group_nodes`, `ungroup_node`, `reorder_node`,
+`set_style`, `delete_node`, `duplicate_node`, `group_nodes`, `mask_nodes`, `ungroup_node`, `reorder_node`, `set_pivot`, `convert_to_outlines`,
 `add_keyframe`, `animate`, `remove_keyframe`, `move_keyframes`, `set_easing`, `clear_animation`,
 `add_page`, `delete_page`, `rename_page`, `duplicate_page`, `set_document`,
-`set_artboard_duration`, `add_bone`, `pose_bone`, `set_ik_target`, `bind_mesh` (at most 10
-`bind_mesh` ops in a batch: bind several shapes in one). Where a name is shared (a shape and a
+`set_artboard_duration`, `add_bone`, `pose_bone`, `set_ik_target`, `bind_mesh` (at most 20
+`bind_mesh` ops and 60 layers in a batch: bind several shapes in one), `unbind_mesh`. `get_bindings` reads which
+bones each bound layer follows; a bound layer can be deleted (its binding goes with it). Where a name is shared (a shape and a
 bone both "Thigh L"), use the id.
 
 ```json
@@ -111,13 +116,19 @@ Values: numbers for `x`, `y`, `rotation`, `opacity`, sizes; `{x, y}` for `positi
   focal shape last, or restack with `reorder_node {node, to: "front"|"back"|…, index?}`.
 - An artboard is white unless given a fill: `"fill": "none"` for a transparent one (an app's
   Lottie, a sticker).
-- Scaling and rotating happen about the anchor (the centre). To keep an edge in place — a logo
-  squashing on the floor, a word growing to its right — anchor a group at that edge and animate
-  the group: `add_node {type: "group", id, parent, x: <the edge>, y}`, then add the node with
-  `parent: <the group>` offset by half its size (`x: <half its width>` for a left edge), or move an
-  existing one in with `reorder_node {node, parent: <the group>}` — it stays where it is on screen.
-  (`group_nodes` keeps the nodes where they are, but its group sits at its parent's origin, so it
-  scales about that point; `update_node` can't change a parent.)
+- **Pivots.** Scaling and rotating happen about a node's position, its pivot — the centre for most
+  shapes. To pivot elsewhere — a limb at its joint, a logo squashing on the floor, a word growing
+  to its right — `set_pivot {node, at: "bottom"}` (a place on its own box: `left`, `top-right`…)
+  or `{node, x, y}` (a point on the page); it stays where it is on screen. Groups, rectangles and
+  images take a pivot; put anything else in a group first (`group_nodes {nodes: [it], id}` — its
+  group sits at its parent's origin until pivoted), then pivot the group. Set pivots before
+  animating rotation or scale: animated turns happen about the pivot. (`update_node` can't
+  change a parent: `reorder_node {node, parent}` moves a node in, keeping it in place.)
+- **Masks.** `mask_nodes {nodes, mask?, mode?}` puts the nodes and a mask (a shape, text or
+  image; the frontmost of the nodes when not named) in a group that shows them only inside it —
+  reveals, vignettes, a picture in a frame, something going behind an edge. The mask isn't drawn;
+  animate it (its size, position, scale) to reveal. `mode`: `clip` (its outline), `alpha` (its
+  opacity: a gradient fade), `luminance` (white shows, black hides).
 - `rotation` is degrees counter-clockwise, tweened as written: 0 → 360 is a whole turn; −360
   turns clockwise.
 - Gradients: `angle` 0° runs left → right, 90° bottom → top (270° top → bottom).
@@ -125,10 +136,17 @@ Values: numbers for `x`, `y`, `rotation`, `opacity`, sizes; `{x, y}` for `positi
 - `letterSpacing` is in pixels (−2 at 100 px is tight display type).
 - A path keeps its own centre as its position: keyframe `x`/`y` around its current value (read it
   with `get_scene_context`'s `at`), never around 0.
-- **Text** is measured by its real glyphs in Inter: its width is exact (advances, kerning, letter
-  spacing); its height is the line box (lines × size × `lineHeight`). The server draws it in Inter (regular, medium, semibold, bold, and italics). Other families show
-  in the user's editor but are drawn and measured as Inter here: use Inter, or check the real font
-  with `capture_canvas` while the project is open in their editor.
+- **Text and fonts.** Text is drawn, laid out and measured in its own family when it's Inter (always
+  there: regular, medium, semibold, bold, italics) or one of the editor's Google Fonts
+  (`list_fonts`: families and their weights — upright only; a missing weight takes the nearest).
+  The server fetches a Google font the first time a document uses it. Its width is exact (advances,
+  kerning, letter spacing); its height is the line box (lines × size × `lineHeight`). A family not
+  in the list is drawn and measured in Inter, and answers say so (`fonts`): pick from the list, or
+  check the user's own font with `capture_canvas` while the project is open in their editor.
+  `measure_text` sets text without placing it: each glyph's `x` and `advance`, each line's width,
+  the font's ascent and descent — for cursors, underlines and fitting a word to a width.
+  `convert_to_outlines {node}` turns text into a group of letter paths (`<id>-1`…, named by their
+  letter) for per-letter animation: stagger them, recolour one, bounce one. One-way.
 - **Timelines.** `duration` and `frameRate` are the document's. Each artboard at the top of a page
   plays a timeline of its own — its layers' keyframes, at its own length (`artboardTimelines`;
   `set_artboard_duration {artboard, duration}`; the document's until it has one). A timeline of N
@@ -145,6 +163,8 @@ Values: numbers for `x`, `y`, `rotation`, `opacity`, sizes; `{x, y}` for `positi
   `reference/motion.md`; `[x1, y1, x2, y2]` gives a cubic Bézier. An overshooting easing
   (`easeOutBack`) into a keyframe that's already the overshoot overshoots twice: use `easeOutCubic`
   into the peak and the springy easing for the settle.
+- `transparent: true` draws on nothing (a PNG with alpha): a node alone for a sprite or a
+  turnaround, a page without the document background.
 - What the server draws is the saved version (or the dry run's would-be one). `capture_canvas`
   asks the user's open editor for its picture (unsaved changes, rigs and all).
 
@@ -152,7 +172,7 @@ Values: numbers for `x`, `y`, `rotation`, `opacity`, sizes; `{x, y}` for `positi
 
 - Stroke draw-ons (`strokeProgress`): check in the editor (`capture_canvas`).
 - Bound pictures bent by bones: check with `capture_canvas`; bound shapes do pose.
-- Fonts other than Inter (above).
+- Fonts that aren't Inter or in `list_fonts` (above).
 
 Pitfalls met in real projects, and what to do about each: `reference/pitfalls.md`.
 

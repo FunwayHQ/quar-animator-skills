@@ -26,8 +26,11 @@ Small things move fast; big things move slower. Leave **holds**: motion reads on
 - `easeOutElastic` — a spring (scale pops, wobble). Use sparingly.
 - `linear` — only for constant motion: a spin, a scrolling texture, a loop's steady drift.
 - `easeOutExpo` / `easeInOutExpo` — sharp, "tech" motion.
-- All names: `linear`, `easeIn|Out|InOut` + `Quad`, `Cubic`, `Quart`, `Quint`, `Expo`, `Circ`,
-  `Back`, `Elastic`, `Bounce`. Or `[x1, y1, x2, y2]` (a cubic Bézier, like CSS).
+- `hold` (in `animate`) — a cut: the value before stays until this keyframe's frame, then jumps
+  (a cursor blink, a pop on, a hard cut between poses).
+- All names: `linear`, `easeIn|Out|InOut` + `Sine`, `Quad`, `Cubic`, `Quart`, `Quint`, `Expo`,
+  `Circ`, `Back`, `Elastic`, `Bounce`; `hold`. Or `[x1, y1, x2, y2]` (a cubic Bézier, like CSS).
+  `get_animatable_properties` lists them.
 
 ## Principles that make it look designed
 

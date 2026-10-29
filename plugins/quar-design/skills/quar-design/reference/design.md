@@ -30,7 +30,7 @@ and the palette before you add a shape.
   than within them). Group related shapes (`group_nodes`) and name them.
 - **Alignment:** align to a few lines — the centre, or a left edge, or a grid. Read `bounds` (from
   a dry run's `placed`, or `get_scene_context`) to check edges really line up; eyeballing a picture
-  misses a few pixels. Text bounds are its glyphs' in Inter.
+  misses a few pixels. Text bounds are its glyphs' (in its own font when `list_fonts` has it).
 - **Spacing scale:** pick spacings from one scale (8 px base: 8, 16, 24, 32, 48, 64, 96…) and reuse
   them.
 
@@ -48,8 +48,10 @@ and the palette before you add a shape.
 
 ## Type
 
-- Inter (what the server draws): weights 400, 500, 600, 700; italics. Use two weights at most —
-  e.g. 700 for headlines, 400–500 for the rest.
+- Inter, or a family from `list_fonts` (the server draws and measures those; others become Inter):
+  pair at most two families — a display face for headlines, a quiet one for the rest — and two
+  weights in all, e.g. 700 for headlines, 400–500 for the rest. (Inter has 400, 500, 600, 700 and
+  italics.)
 - A size scale (×1.25 or ×1.333): e.g. 24, 32, 42, 56, 75, 100 px. On 1920 × 1080: headline
   72–120, subhead 36–48, body 24–32; nothing under 20.
 - Big display type: tighten `letterSpacing` a little (it's in pixels: −1 to −3 % of the size,

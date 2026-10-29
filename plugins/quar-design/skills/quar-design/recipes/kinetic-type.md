@@ -41,19 +41,23 @@ are the glyphs' real width in Inter, so lay out in two steps:
 ]
 ```
 
-The emphasised word grows as it lands (below): put it in a group anchored at its **left edge**,
+The emphasised word grows as it lands (below): put it in a group pivoted at its **left edge**,
 so it grows to the right and the gap before it stays even — once the layout is measured:
 
 ```json
 [
-  { "op": "add_node", "type": "group", "id": "s1-pop", "parent": "s1", "x": 86, "y": 0 },
-  { "op": "reorder_node", "node": "s1-w3", "parent": "s1-pop" }
+  { "op": "group_nodes", "nodes": ["s1-w3"], "id": "s1-pop" },
+  { "op": "set_pivot", "node": "s1-pop", "at": "left" }
 ]
 ```
 
-(the group at the word's left edge in the artboard's space, here 86, read from `placed`;
-`reorder_node` moves the word in and keeps it where it is on screen, so it now grows from that
-edge. `update_node` can't change a parent.)
+(the word stays where it is on screen; the group's `x`, `y` is now the word's left edge, and its
+scale grows from there. Text can't be pivoted itself: the group carries the pivot.)
+
+For letters that move one by one — a cascade, a wave, one letter recoloured — turn the word into
+outlines once its layout is final: `convert_to_outlines {node: "s1-w3", id: "s1-w3"}` gives a group
+of letter paths (`s1-w3-1`, `s1-w3-2`…) where the word was; stagger their `y` and `opacity` by
+2–3 frames. Do it last: outlines can't be edited as text.
 Keyframes on the words are in their parent's space: inside an artboard that isn't at the page's
 centre, key around each word's own `x`/`y`, not its `at`.
 

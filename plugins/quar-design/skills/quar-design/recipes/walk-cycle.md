@@ -57,8 +57,9 @@ which is the bone's direction on the page). The server's pictures don't draw bon
 joints from the add_bone answers, or `placed`.
 
 Bind each part to its own bone — `bind_mesh {nodes: [<shape ids>], bones: [<bone id>]}` — at most
-10 `bind_mesh` ops in a batch (bind several shapes in one op where they share a bone: each foot
-with its shin, the head with the neck, the body with the spine).
+20 `bind_mesh` ops and 60 layers in a batch (bind several shapes in one op where they share a bone:
+each foot with its shin, the head with the neck, the body with the spine). Check with
+`get_bindings`: each part should follow its own bone almost wholly.
 
 ## 3. The legs: IK on the ankles
 

@@ -7,8 +7,10 @@ floor, bounces twice — lower each time — settles and holds. 90 frames at 30 
 
 - New project: `create_project {name}`; then a batch with `{"op": "set_document", "duration": 90,
   "frame_rate": 30}` and the scene.
-- The logo sits in a group anchored **at its bottom**, so scaling squashes it onto the floor, not
+- The logo sits in a group pivoted **at its bottom**, so scaling squashes it onto the floor, not
   about its middle: the group at the floor line, the logo's shapes offset up by half their height.
+  (For a logo already on the page: `group_nodes` its shapes, then `set_pivot {node: <the group>,
+  at: "bottom"}` — the same thing, and its numbers below are read from `get_scene_context`.)
 
 ```json
 [
