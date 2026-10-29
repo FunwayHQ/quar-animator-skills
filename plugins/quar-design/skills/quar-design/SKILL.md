@@ -80,7 +80,8 @@ An op is `{"op": <name>, …its arguments}`; each op takes its own optional `pag
 `add_keyframe`, `animate`, `remove_keyframe`, `move_keyframes`, `set_easing`, `clear_animation`,
 `add_page`, `delete_page`, `rename_page`, `duplicate_page`, `set_document`,
 `set_artboard_duration`, `add_bone`, `pose_bone`, `set_ik_target`, `bind_mesh` (at most 20
-`bind_mesh` ops and 60 layers in a batch: bind several shapes in one), `unbind_mesh`. `get_bindings` reads which
+`bind_mesh` ops and 60 layers in a batch: bind several shapes in one), `unbind_mesh`,
+`set_video_clip` (below). `get_bindings` reads which
 bones each bound layer follows; a bound layer can be deleted (its binding goes with it). Where a name is shared (a shape and a
 bone both "Thigh L"), use the id.
 
@@ -163,6 +164,36 @@ Values: numbers for `x`, `y`, `rotation`, `opacity`, sizes; `{x, y}` for `positi
   `reference/motion.md`; `[x1, y1, x2, y2]` gives a cubic Bézier. An overshooting easing
   (`easeOutBack`) into a keyframe that's already the overshoot overshoots twice: use `easeOutCubic`
   into the peak and the springy easing for the settle.
+- **Videos.** A video layer (`"type": "video"`: an MP4, MOV or WebM, or an animated GIF the user
+  imported) is a picture that plays while its clip does, and shows nothing outside it unless it
+  holds. `get_scene_context` gives its `video`: the `file`, `gif`, its `length` (seconds), and its
+  `clip` — `start` (the frame it starts on), `end` (the frame it stops at), `offset` (seconds
+  trimmed off the video's beginning), `duration` (seconds of the video one pass plays), `speed`,
+  `loop` and `loopFor` (seconds it loops on for), `hold` (its last picture stays after it ends) —
+  and its linked `sound` (a clip on the timeline that moves with it). Change the clip with
+  `set_video_clip {node, moveTo?, trimStart?, trimEnd?, speed?, loop?, hold?, stopAt?,
+  unlinkSound?}` — frames of the timeline the layer plays on, applied in the order loop, speed,
+  moveTo, trimStart, trimEnd, hold, stopAt:
+  - `moveTo` starts it on a frame; `trimStart` makes a frame its first, its end staying put
+    (later trims the video's beginning off, earlier plays more of it); `trimEnd` makes it stop at
+    a frame (earlier trims the end off; later plays more, to the video's end — or, with `loop`,
+    loops on until then: `{loop: true, trimEnd: 300}` fills a 10-second slide).
+  - `speed` 0.25–4 (the sound keeps its pitch); `hold: true` keeps the last picture on;
+    `stopAt` ends it on a frame, holding what shows there (a GIF frozen part way); `loop: false`
+    on a GIF holds it too.
+  - Its sound follows each change, and the timeline it plays on is lengthened to play it to its
+    end (the result says `timelineLengthened`). `unlinkSound: true` makes the sound its own.
+  Otherwise a video layer is a picture: move, size (`width`, `height`), round (`cornerRadius`),
+  fade, `adjustments`, effects, blend modes, masks (it can mask, too), pivots and keyframes as for
+  an image — but no corner pull and no bones. `duplicate_node` copies its sound with it;
+  `delete_node` deletes its sound with it (unlink first to keep the sound). **Videos can't be
+  imported from here:** when the piece needs one, ask the user to add it in the editor — "Open the
+  project and choose File › Import Video… (MP4, MOV, WebM or an animated GIF, up to 100 MB); it's
+  placed on the artboard in view, starting at the playhead. Tell me when it's in." — then read the
+  scene again. The server's pictures draw a video from its strip (small stills, a few a second):
+  right for timing and layout, soft for detail — `capture_canvas` shows the real frame. A layer
+  whose video has no strip is a labelled box in those pictures. Lottie and SVG exports show a
+  still of it; the editor's MP4 and WebM exports play it.
 - `transparent: true` draws on nothing (a PNG with alpha): a node alone for a sprite or a
   turnaround, a page without the document background.
 - What the server draws is the saved version (or the dry run's would-be one). `capture_canvas`
@@ -171,6 +202,7 @@ Values: numbers for `x`, `y`, `rotation`, `opacity`, sizes; `{x, y}` for `positi
 ## What the server's pictures don't show
 
 - Stroke draw-ons (`strokeProgress`): check in the editor (`capture_canvas`).
+- A video at full quality: renders show its strip's nearest still (above).
 - Bound pictures bent by bones: check with `capture_canvas`; bound shapes do pose.
 - Fonts that aren't Inter or in `list_fonts` (above).
 
