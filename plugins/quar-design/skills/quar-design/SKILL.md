@@ -138,7 +138,7 @@ Values: numbers for `x`, `y`, `rotation`, `opacity`, sizes; `{x, y}` for `positi
 - A path keeps its own centre as its position: keyframe `x`/`y` around its current value (read it
   with `get_scene_context`'s `at`), never around 0.
 - **Text and fonts.** Text is drawn, laid out and measured in its own family when it's Inter (always
-  there: regular, medium, semibold, bold, italics) or one of the editor's Google Fonts
+  there: every weight from 100 to 900, italics at 400 and 700) or one of the editor's Google Fonts
   (`list_fonts`: families and their weights — upright only; a missing weight takes the nearest).
   The server fetches a Google font the first time a document uses it. Its width is exact (advances,
   kerning, letter spacing); its height is the line box (lines × size × `lineHeight`). A family not
