@@ -30,6 +30,8 @@
 | A download link you can't reach | Your sandbox can't fetch the API's link | `get_export {export_id, include_file: true}`: the file in the reply (up to 8 MB; larger, export in parts with start_frame/end_frame) |
 | Waiting for an export | `get_export` with `wait` gives up after 45 s with `next` | Call `get_export` again; each call gives a fresh one-use link |
 | Big batches failing | All-or-nothing: one bad op stops the whole batch | Read the error (it names the op and path), fix that op, resend |
+| A save while another is stored | `busy`: another save to the account is still being stored (nothing was saved) | Wait a moment and send the same call again |
+| A project heavy with videos | `too_large`: with its videos the project would be over the size limit (`limitBytes`; nothing was saved) | Tell the user; making room means removing a video, which is theirs: ask first |
 | A loop that jumps | The last frame differs from the first | Key the same value at frame 0 and the loop's end, for every property |
 | Too many versions | One version per tiny edit floods the history | Batch a coherent step; one `message` per step |
 | Bound pictures | The server's picture doesn't bend them | Check poses with `capture_canvas` |

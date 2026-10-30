@@ -7,7 +7,7 @@
       "name": "quar-design",
       "source": "./plugins/quar-design",
       "description": "Design and animate in Quar Animator through its MCP server: a working loop that looks at every step, a design rubric, a motion guide and step-by-step recipes",
-      "version": "1.2.0",
+      "version": "1.2.1",
       "category": "design",
       "keywords": ["animation", "motion design", "lottie", "quar", "mcp"]
     }

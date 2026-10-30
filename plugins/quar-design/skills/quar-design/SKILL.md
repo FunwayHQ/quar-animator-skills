@@ -17,7 +17,8 @@ another way to make the file.
 ## The loop
 
 1. **Read.** `list_projects` (or `create_project {name}` for a fresh start — give the user its
-   `editorUrl`, which opens it in their editor), then
+   `editorUrl`, which opens it in their editor; one marked `stillUploading` has no version yet,
+   its videos still going up from the editor: nothing to open until it has), then
    `get_scene_context {project_id}`. Note the `seq` — pass it as `base_seq` to every edit, so an
    edit fails instead of landing on changes you haven't seen. Note `frameRate`, `duration`,
    `artboardTimelines`, and what's locked (the user's: leave it alone unless asked).
@@ -193,7 +194,8 @@ Values: numbers for `x`, `y`, `rotation`, `opacity`, sizes; `{x, y}` for `positi
   scene again. The server's pictures draw a video from its strip (small stills, a few a second):
   right for timing and layout, soft for detail — `capture_canvas` shows the real frame. A layer
   whose video has no strip is a labelled box in those pictures. Lottie and SVG exports show a
-  still of it; the editor's MP4 and WebM exports play it.
+  still of it (Lottie just while its clip plays, a dark stand-in for one with no strip); the
+  editor's MP4 and WebM exports play it.
 - `transparent: true` draws on nothing (a PNG with alpha): a node alone for a sprite or a
   turnaround, a page without the document background.
 - What the server draws is the saved version (or the dry run's would-be one). `capture_canvas`
