@@ -55,8 +55,9 @@ so it grows to the right and the gap before it stays even — once the layout is
 scale grows from there. Text can't be pivoted itself: the group carries the pivot.)
 
 For letters that move one by one — a cascade, a wave, one letter recoloured — turn the word into
-outlines once its layout is final: `convert_to_outlines {node: "s1-w3", id: "s1-w3"}` gives a group
-of letter paths (`s1-w3-1`, `s1-w3-2`…) where the word was; stagger their `y` and `opacity` by
+outlines once its layout is final: `convert_to_outlines {node: "s1-w3", id: "s1-w3-o"}` gives a
+group of letter paths (`s1-w3-o-1`, `s1-w3-o-2`…) where the word was (the group needs an id of its
+own: the word's is still taken while it's outlined); stagger their `y` and `opacity` by
 2–3 frames. Do it last: outlines can't be edited as text.
 Keyframes on the words are in their parent's space: inside an artboard that isn't at the page's
 centre, key around each word's own `x`/`y`, not its `at`.
