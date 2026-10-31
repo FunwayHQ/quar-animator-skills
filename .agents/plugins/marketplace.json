@@ -1,0 +1,12 @@
+{
+  "name": "quar-animator-skills",
+  "interface": { "displayName": "Quar Animator" },
+  "plugins": [
+    {
+      "name": "quar-design",
+      "source": { "source": "local", "path": "./plugins/quar-design" },
+      "policy": { "installation": "AVAILABLE", "authentication": "ON_INSTALL" },
+      "category": "Design"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "quar-design",
+  "version": "1.3.0",
+  "description": "Design and animate in Quar Animator through its MCP server: a working loop that looks at every step, a design rubric, a motion guide and step-by-step recipes",
+  "author": { "name": "Funway Interactive", "url": "https://github.com/FunwayHQ" },
+  "homepage": "https://animator.quar.pro",
+  "repository": "https://github.com/FunwayHQ/quar-animator-skills",
+  "license": "MIT",
+  "keywords": ["animation", "motion design", "lottie", "quar", "mcp"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Quar Animator",
+        "shortDescription": "Design and animate 2D scenes in Quar Animator",
+        "longDescription": "Draws, animates and exports in your Quar Animator cloud projects the way a motion designer works: it plans the composition, builds it, looks at a picture of every step, fixes it, animates it with real timing and easing, checks the motion, and exports Lottie, GIF, PNG or SVG. Each step it saves is a version you can undo in the editor.",
+        "developerName": "Funway Interactive",
+        "category": "Design",
+        "capabilities": ["Read", "Write"],
+        "websiteURL": "https://animator.quar.pro",
+        "privacyPolicyURL": "https://animator.quar.pro/privacy/",
+        "termsOfServiceURL": "https://animator.quar.pro/terms/",
+        "defaultPrompt": [
+          "Make a 3-second bouncing logo in a new Quar project and give me a GIF.",
+          "Animate 'Make it move. Make it yours.' as kinetic type in Quar, one sentence per slide."
+        ],
+        "brandColor": "#9A4FD8",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/logo.png"
+      }
+    }
+  }
+}
